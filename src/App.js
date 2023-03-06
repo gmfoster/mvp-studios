@@ -3,83 +3,103 @@ import { useState, useEffect } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import cellEditFactory, { Type } from "react-bootstrap-table2-editor";
-import filterFactory, { textFilter } from "react-bootstrap-table2-filter";
+import filterFactory, { dateFilter, textFilter } from "react-bootstrap-table2-filter";
+import { ArrowRight } from 'react-bootstrap-icons';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+
+
 function App() {
   const [data, setData] = useState([]);
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
   useEffect(() => {
     getData();
   }, []);
   const getData = () => {
-    axios("https://jsonplaceholder.typicode.com/comments").then((res) => {
+    axios("https://my-json-server.typicode.com/gmfoster/fakeData/posts/").then((res) => {
       console.log(res.data);
       setData(res.data);
     });
   };
-  const emailFormatter = (data, row) => {
-    return <span>Email = {data}</span>;
-  };
+
+  const arrow = (cell, row) => {
+    return <ArrowRight/>;
+  }
+
   const selectRow = {
-    mode: "checkbox",
+    mode: 'checkbox',
     clickToSelect: true,
-    selected: [1, 3],
-    clickToEdit: true,
+    onSelect: (row, isSelect, rowIndex, e) => {
+      console.log("select", row)
+    }
   };
+
   const columns = [
     {
-      dataField: "email",
-      text: "Email",
+      dataField: "studentId",
+      text: "Student ID ",
       sort: true,
-      formatter: emailFormatter,
+      //style: {width: "10%"},
+      filter: textFilter(),
+      // formatter: emailFormatter,
     },
     {
-      dataField: "postId",
-      text: "Product ID",
+      dataField: "lastName",
+      text: "Last Name",
+      sort: true,
       filter: textFilter(),
 
-      sort: true,
-      validator: (newValue, row, column) => {
-        if (isNaN(newValue)) {
-          return {
-            valid: false,
-            message: "Please enter numeric value",
-          };
-        }
-        return true;
-      },
     },
     {
-      dataField: "name",
-      text: "Name",
+      dataField: "firstName",
+      text: "First Name",
       sort: true,
-      editable: false,
+      filter: textFilter(),
+
     },
     {
-      dataField: "email",
-      text: "Dropdown",
-      editor: {
-        type: Type.SELECT,
-        options: [
-          {
-            value: "A",
-            label: "A",
-          },
-          {
-            value: "B",
-            label: "B",
-          },
-        ],
-      },
+      dataField: "graduation_date",
+      text: "Graduation Date",
+      sort: true,
+      filter: dateFilter()
     },
+    {
+      dataField: "battalion",
+      text: "Battalion",
+      sort: true,
+      filter: textFilter(),
+
+    },
+    {
+      dataField: "company",
+      text: "Company",
+      sort: true,
+      filter: textFilter(),
+
+    },
+    {
+      dataField: "edit",
+      formatter: arrow,
+      text: "Edit",
+      events: {
+        onClick: (e, column, columnIndex, row, rowIndex) => { handleShow() },
+      }
+    }
   ];
+
+
   return (
     <div className="App">
       <BootstrapTable
-        keyField="id"
+        keyField="studentId"
         data={data}
         columns={columns}
-        striped
         hover
-        condensed
+        bordered
         pagination={paginationFactory()}
         cellEdit={cellEditFactory({
           mode: "dbclick",
@@ -88,7 +108,22 @@ function App() {
         })}
         selectRow={selectRow}
         filter={filterFactory()}
+        filterPosition={"top"}
       />
+      <Modal show={show} onHide={handleClose} animation={false}>
+        <Modal.Header closeButton>
+          <Modal.Title>Modal heading</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleClose}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
