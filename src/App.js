@@ -7,6 +7,7 @@ import filterFactory, { dateFilter, textFilter } from "react-bootstrap-table2-fi
 import { ArrowRight } from 'react-bootstrap-icons';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
+import React  from 'react';
 
 
 function App() {
